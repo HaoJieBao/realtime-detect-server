@@ -12,7 +12,9 @@ services:
   api-server:
     build: 
       context: .
-      dockerfile: Dockerfile
+      dockerfile: dev.Dockerfile
+    volumes:
+      - ./app:/code/app
     networks:
       - dbnet
     ports:
@@ -23,7 +25,7 @@ services:
   worker:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: dev.Dockerfile
     networks:
       - dbnet
     depends_on:
