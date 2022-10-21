@@ -1,0 +1,11 @@
+# fastapi 
+fastapi==0.85.1
+uvicorn==0.19.0
+
+# webrtc signaling
+websockets==10.3
+python-socketio==5.7.2
+
+# task queue
+redis==4.3.4
+rq==1.11.1

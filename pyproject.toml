@@ -1,0 +1,29 @@
+[project]
+name = ""
+version = ""
+description = ""
+authors = [
+    {name = "alan910127", email = "alan469357@gmail.com"},
+]
+dependencies = [
+    "fastapi>=0.85.1",
+    "uvicorn>=0.19.0",
+    "websockets>=10.3",
+    "python-socketio>=5.7.2",
+    "redis>=4.3.4",
+    "rq>=1.11.1",
+]
+requires-python = ">=3.7"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["pdm-pep517>=1.0.0"]
+build-backend = "pdm.pep517.api"
+
+[tool]
+[tool.pdm]
+
+[tool.pdm.scripts]
+dev = "uvicorn app.main:app --reload"
+start = "uvicorn app.main:app"
+worker = "rq worker --with-scheduler"

@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  db:
+    image: redis
+    restart: always
+    networks:
+      - dbnet
+    ports: 
+      - 6379:6379
+
+  api-server:
+    build: .
+    networks:
+      - dbnet
+    ports:
+      - 80:80
+    depends_on:
+      - db
+
+  worker:
+    build: .
+    networks:
+      - dbnet
+    depends_on:
+      - db
+    command: rq worker --url redis://db:6379
+
+networks:
+  dbnet:
