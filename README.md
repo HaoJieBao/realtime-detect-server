@@ -3,7 +3,7 @@
 ## Production Setup
 
 ```sh
-docker-compose up
+docker-compose up --build
 ```
 
 ## Development Setup
