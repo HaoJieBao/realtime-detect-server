@@ -30,5 +30,16 @@ services:
       - db
     command: rq worker --url redis://db:6379
 
+  stream-receiver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - dbnet
+    depends_on:
+      - db
+      - api-server
+    command: python3 -m app.stream_receiver
+
 networks:
   dbnet:

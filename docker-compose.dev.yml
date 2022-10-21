@@ -10,4 +10,8 @@ services:
     build:
       context: .
       dockerfile: dev.Dockerfile
-   
+
+  stream-receiver:
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
