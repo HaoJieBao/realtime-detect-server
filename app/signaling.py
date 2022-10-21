@@ -10,15 +10,25 @@ app = socketio.ASGIApp(socketio_server=sio)
 logger = logging.getLogger("Signaling")
 
 
+receiver_id = ""
+
+
 @sio.event
 async def connect(user: str, _: dict[str, Any]):
     logger.info(f"Connected: {user}")
-    await sio.emit("connected", to=user)
+    await sio.emit("receiver", dict(server=receiver_id), to=user)
 
 
 @sio.event
 async def disconnect(user: str):
     logger.info(f"Disconnected: {user}")
+
+
+@sio.event
+async def receiver(user: str):
+    global receiver_id
+    logger.info(f"receiver is {user}")
+    receiver_id = user
 
 
 @sio.event
