@@ -26,7 +26,7 @@ async def offer(user: str, payload: dict[str, Any]):
     target = payload["target"]
     offer = payload["offer"]
     logger.info(f"Received an offer from {user} to {target}")
-    await sio.emit("offer", dict(source=target, offer=offer), to=target)
+    await sio.emit("offer", dict(source=user, offer=offer), to=target)
 
 
 @sio.event
