@@ -1,25 +1,21 @@
 import time
 
-import redis
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from rq import Queue
 
 from . import signaling
+from .task_queue import task_queue
 
 app = FastAPI()
 
 app.mount("/ws", signaling.app)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost", "http://localhost:5173"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-redis_connection = redis.Redis(host="db", port=6379)
-task_queue = Queue(connection=redis_connection)
 
 
 def do_task(n: str):
