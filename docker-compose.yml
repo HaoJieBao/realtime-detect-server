@@ -3,7 +3,7 @@ version: '3'
 services:
   api-server:
     build: 
-      context: ./server
+      context: .
       dockerfile: Dockerfile
     restart: always
     environment:
@@ -15,7 +15,7 @@ services:
 
   stream-receiver:
     build:
-      context: ./server
+      context: .
       dockerfile: Dockerfile
     restart: always
     environment:
