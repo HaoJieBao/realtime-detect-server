@@ -24,7 +24,7 @@ pcs: set[RTCPeerConnection] = set()
 relay_set: set[RTCPeerConnection] = set()
 
 relay = MediaRelay()
-tracks = set[MediaStreamTrack] = set()
+tracks: set[MediaStreamTrack] = set()
 
 
 @sio.event

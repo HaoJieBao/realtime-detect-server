@@ -16,10 +16,9 @@ def funct(frame: ndarray):
 class HighlightViolation(VideoStreamTrack):
     kind = "video"
 
-    def __init__(self, id: int, track: MediaStreamTrack) -> None:
+    def __init__(self, track: MediaStreamTrack) -> None:
         super().__init__()
         self.track = track
-        self.id = id
         self.mode = 0
 
     def report_success(self, job, connection, result):
