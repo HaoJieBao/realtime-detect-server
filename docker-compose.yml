@@ -28,4 +28,4 @@ services:
     command: python3 -m app.stream_receiver
     
 networks:
-  dbnet:
+  mynet:
