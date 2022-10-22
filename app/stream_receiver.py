@@ -54,7 +54,10 @@ async def offer(data: dict):
         logger.info(f"Connection state is {pc.connectionState}")
         if pc.connectionState == "failed":
             await pc.close()
-            pcs.pop(source)
+            if category == "camera":
+                pcs.pop(source)
+            elif category == "monitor":
+                relay_set.pop(source)
 
     @pc.on("track")
     def on_track(track: MediaStreamTrack):

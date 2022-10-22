@@ -1,48 +1,31 @@
 version: '3'
 
 services:
-  db:
-    image: redis
-    restart: always
-    networks:
-      - dbnet
-    ports: 
-      - 6379:6379
-
   api-server:
     build: 
-      context: .
+      context: ./server
       dockerfile: Dockerfile
     restart: always
+    environment:
+      - PORT=80
     networks:
-      - dbnet
+      - mynet
     ports:
       - 80:80
-    depends_on:
-      - db
-
-  worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: always
-    networks:
-      - dbnet
-    depends_on:
-      - db
-    command: rq worker --url redis://db:6379
 
   stream-receiver:
     build:
-      context: .
+      context: ./server
       dockerfile: Dockerfile
     restart: always
+    environment:
+      - WS_HOST=api-server
+      - WS_PORT=80
     networks:
-      - dbnet
+      - mynet
     depends_on:
-      - db
       - api-server
     command: python3 -m app.stream_receiver
-
+    
 networks:
   dbnet:
