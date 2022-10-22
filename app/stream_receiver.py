@@ -93,7 +93,7 @@ async def connect():
 
 async def main():
     await sio.connect(
-        "ws://api-server:80",
+        "ws://localhost:8081",
         transports=["websocket", "polling"],
         socketio_path="/ws/socket.io",
     )

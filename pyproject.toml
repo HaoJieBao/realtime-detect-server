@@ -28,5 +28,5 @@ build-backend = "pdm.pep517.api"
 
 [tool.pdm.scripts]
 dev = "uvicorn app.main:app --reload"
-start = "uvicorn app.main:app"
+start = "uvicorn app.main:app --host 0.0.0.0 --port 8081"
 worker = "rq worker --with-scheduler"
