@@ -62,6 +62,7 @@ async def offer(data: dict):
 
     @pc.on("track")
     def on_track(track: MediaStreamTrack):
+        logger.info("TRACK")
         if track.kind == "video":
             if category == "camera":
                 t = HighlightViolation(track)
