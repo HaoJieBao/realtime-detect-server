@@ -1,26 +1,27 @@
 import asyncio
 import logging
+import os
 
 import socketio
 from aiortc import (
     MediaStreamTrack,
-    RTCConfiguration,
-    RTCIceServer,
+    RTCIceCandidate,
     RTCPeerConnection,
     RTCSessionDescription,
 )
 from aiortc.contrib.media import MediaRelay
-from av import VideoFrame
 
 from .highlight_violation import HighlightViolation
 
 # Configurations
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Handle AI")
+WS_HOST = os.getenv("WS_HOST", "localhost")
+WS_PORT = os.getenv("WS_PORT", 8080)
 
 # Global states
 sio = socketio.AsyncClient()
-pcs: set[RTCPeerConnection] = set()
+pcs: dict[str, RTCPeerConnection] = {}
 relay_set: set[RTCPeerConnection] = set()
 
 relay = MediaRelay()
@@ -30,35 +31,29 @@ tracks: set[MediaStreamTrack] = set()
 @sio.event
 async def connect():
     logger.info("handle ai connected")
+    await sio.emit("receiver")
 
 
 @sio.event
 async def offer(data: dict):
     offer_dict = data["offer"]
     offer = RTCSessionDescription(sdp=offer_dict["sdp"], type=offer_dict["type"])
-    pc = RTCPeerConnection(
-        configuration=RTCConfiguration(
-            iceServers=[
-                RTCIceServer(urls="stun:stun1.l.google.com:19302"),
-                RTCIceServer(urls="stun:stun2.l.google.com:19302"),
-                RTCIceServer(urls="stun:stun3.l.google.com:19302"),
-                RTCIceServer(urls="stun:stun4.l.google.com:19302"),
-            ]
-        )
-    )
+    pc = RTCPeerConnection()
 
+    source = data["source"]
     category = data["category"]
     if category == "camera":
-        pcs.add(pc)
+        pcs[source] = pc
     else:
         relay_set.add(pc)
 
     @pc.on("connectionstatechange")
     async def on_connectionstatechange():
-        logger.info(f"Connection state is {pc.connectionState}")
+        logger.debug(f"Connection state is {pc.connectionState}")
+        logger.debug(f"Ice connection state is {pc.iceConnectionState}")
         if pc.connectionState == "failed":
             await pc.close()
-            pcs.discard(pc)
+            pcs.pop(source)
 
     @pc.on("track")
     def on_track(track: MediaStreamTrack):
@@ -78,22 +73,33 @@ async def offer(data: dict):
     await pc.setRemoteDescription(offer)
     answer = await pc.createAnswer()
     await pc.setLocalDescription(answer)
+    logger.debug(f"Ice connection state is {pc.iceConnectionState}")
 
     await sio.emit(
         "answer",
-        dict(target=data["source"], answer=dict(sdp=answer.sdp, type=answer.type)),
+        dict(
+            target=source,
+            answer=dict(
+                sdp=pc.localDescription.sdp,
+                type=pc.localDescription.type,
+            ),
+        ),
     )
 
 
 @sio.event
-async def connect():
-    logger.info("handle ai connected")
-    await sio.emit("receiver")
+async def candidate(data):
+    source = data["source"]
+    candidate = data["candidate"]
+    pc = pcs[source]
+
+    logger.info("Candidate")
+    await pc.addIceCandidate(RTCIceCandidate(**candidate))
 
 
 async def main():
     await sio.connect(
-        "ws://localhost:8081",
+        f"ws://{WS_HOST}:{WS_PORT}",
         transports=["websocket", "polling"],
         socketio_path="/ws/socket.io",
     )
@@ -101,5 +107,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())
+    asyncio.run(main())
