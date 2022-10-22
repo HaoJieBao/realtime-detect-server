@@ -35,7 +35,6 @@ async def connect():
 @sio.event
 async def offer(data: dict):
     offer_dict = data["offer"]
-    category = data["category"]
     offer = RTCSessionDescription(sdp=offer_dict["sdp"], type=offer_dict["type"])
     pc = RTCPeerConnection(
         configuration=RTCConfiguration(
@@ -48,6 +47,7 @@ async def offer(data: dict):
         )
     )
 
+    category = data["category"]
     if category == "camera":
         pcs.add(pc)
     else:
@@ -82,7 +82,6 @@ async def offer(data: dict):
         "answer",
         dict(target=data["source"], answer=dict(sdp=answer.sdp, type=answer.type)),
     )
-    return pc
 
 
 @sio.event
