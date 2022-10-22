@@ -13,7 +13,6 @@ logger = logging.getLogger("Highlight")
 
 def funct(frame: ndarray):
     # AI detection
-    logger.info("Task Queue Function")
     return frame
 
 
@@ -25,7 +24,6 @@ class HighlightViolation(VideoStreamTrack):
         self.track = track
 
     async def recv(self):
-        logger.info("Recv")
         timestamp, video_timestamp_base = await self.next_timestamp()
         frame = await self.track.recv()
         frame = frame.to_ndarray(format="bgr24")

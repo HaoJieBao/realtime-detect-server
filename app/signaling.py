@@ -7,6 +7,7 @@ sio = socketio.AsyncServer(async_mode="asgi", cors_allowed_origins="*")
 app = socketio.ASGIApp(socketio_server=sio)
 
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Signaling")
 
 

@@ -22,7 +22,7 @@ WS_PORT = os.getenv("WS_PORT", 8080)
 # Global states
 sio = socketio.AsyncClient()
 pcs: dict[str, RTCPeerConnection] = {}
-relay_set: set[RTCPeerConnection] = set()
+relay_set: dict[str, RTCPeerConnection] = {}
 
 relay = MediaRelay()
 tracks: set[MediaStreamTrack] = set()
@@ -44,13 +44,14 @@ async def offer(data: dict):
     category = data["category"]
     if category == "camera":
         pcs[source] = pc
-    else:
-        relay_set.add(pc)
+    elif category == "monitor":
+        relay_set[source] = pc
+        for track in tracks:
+            pc.addTrack(track)
 
     @pc.on("connectionstatechange")
     async def on_connectionstatechange():
-        logger.debug(f"Connection state is {pc.connectionState}")
-        logger.debug(f"Ice connection state is {pc.iceConnectionState}")
+        logger.info(f"Connection state is {pc.connectionState}")
         if pc.connectionState == "failed":
             await pc.close()
             pcs.pop(source)
@@ -58,22 +59,20 @@ async def offer(data: dict):
     @pc.on("track")
     def on_track(track: MediaStreamTrack):
         logger.info("TRACK")
-        if track.kind == "video":
-            if category == "camera":
-                t = HighlightViolation(track)
-                tracks.add(relay.subscribe(t))
-                pc.addTrack(relay.subscribe(t))
-                for relay_pc in relay_set:
-                    relay_pc.addTrack(relay.subscribe(t))
+        if track.kind != "video":
+            return
 
-            else:
-                for track in tracks:
-                    pc.addTrack(track)
+        if category == "camera":
+            t = HighlightViolation(track)
+            tracks.add(t)
+
+            pc.addTrack(relay.subscribe(t))
+            for relay_pc in relay_set:
+                relay_pc.addTrack(relay.subscribe(t))
 
     await pc.setRemoteDescription(offer)
     answer = await pc.createAnswer()
     await pc.setLocalDescription(answer)
-    logger.debug(f"Ice connection state is {pc.iceConnectionState}")
 
     await sio.emit(
         "answer",
@@ -85,16 +84,6 @@ async def offer(data: dict):
             ),
         ),
     )
-
-
-@sio.event
-async def candidate(data):
-    source = data["source"]
-    candidate = data["candidate"]
-    pc = pcs[source]
-
-    logger.info("Candidate")
-    await pc.addIceCandidate(RTCIceCandidate(**candidate))
 
 
 async def main():
