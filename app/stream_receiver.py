@@ -89,6 +89,7 @@ async def offer(data: dict):
 
 
 async def main(host: str, port: int):
+    await asyncio.sleep(30)
     await sio.connect(
         f"ws://{host}:{port}",
         transports=["websocket", "polling"],
