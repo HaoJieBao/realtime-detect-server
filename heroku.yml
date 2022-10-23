@@ -1,6 +1,0 @@
-build:
-  docker:
-    api-server: Dockerfile
-    stream-receiver: Dockerfile
-run:
-  stream-receiver: python3 -m app.stream_receiver
