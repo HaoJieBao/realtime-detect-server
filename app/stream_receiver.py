@@ -93,6 +93,7 @@ async def main(host: str, port: int):
         f"ws://{host}:{port}",
         transports=["websocket", "polling"],
         socketio_path="/ws/socket.io",
+        wait_timeout=60,
     )
     await sio.wait()
 
