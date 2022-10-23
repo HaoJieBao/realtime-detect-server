@@ -91,7 +91,7 @@ async def offer(data: dict):
 async def main(host: str, port: int):
     await asyncio.sleep(30)
     await sio.connect(
-        f"ws://{host}:{port}",
+        "wss://hao-jie-bao.herokuapp.com",
         transports=["websocket", "polling"],
         socketio_path="/ws/socket.io",
         wait_timeout=60,
