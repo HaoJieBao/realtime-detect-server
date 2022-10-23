@@ -1,3 +1,4 @@
+import argparse
 import asyncio
 import logging
 import os
@@ -16,8 +17,6 @@ from .highlight_violation import HighlightViolation
 # Configurations
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Handle AI")
-WS_HOST = os.getenv("WS_HOST", "localhost")
-WS_PORT = os.getenv("WS_PORT", 8080)
 
 # Global states
 sio = socketio.AsyncClient()
@@ -89,9 +88,9 @@ async def offer(data: dict):
     )
 
 
-async def main():
+async def main(host: str, port: int):
     await sio.connect(
-        f"ws://{WS_HOST}:{WS_PORT}",
+        f"ws://{host}:{port}",
         transports=["websocket", "polling"],
         socketio_path="/ws/socket.io",
     )
@@ -99,4 +98,10 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--host", type=str, default="localhost", help="websocket server host"
+    )
+    parser.add_argument("--port", type=int, default=80, help="websocket server port")
+    args = parser.parse_args()
+    asyncio.run(main(args.host, args.port))
