@@ -1,5 +1,6 @@
 import time
 
+import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -36,3 +37,7 @@ async def add_task(n: str):
     job = task_queue.enqueue(do_task, n)
     queue_length = len(task_queue)
     return f"task {job.id} added to queue at {job.enqueued_at}. {queue_length} tasks in the queue"
+
+
+if __name__ == "__main__":
+    uvicorn.run("app.main:app")
