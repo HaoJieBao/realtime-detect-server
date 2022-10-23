@@ -69,7 +69,7 @@ async def offer(data: dict):
             tracks.add(t)
 
             pc.addTrack(relay.subscribe(t))
-            for relay_pc in relay_set:
+            for relay_pc in relay_set.values():
                 relay_pc.addTrack(relay.subscribe(t))
 
     await pc.setRemoteDescription(offer)
